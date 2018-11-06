@@ -1,0 +1,89 @@
+﻿
+<div>
+    <div>
+        <h3>현위치</h3> <button id="getLocation">클릭</button>
+    </div>
+    <div>
+        위도 : <input id="lat" />
+        경도 : <input id="lon" />
+    </div>
+</div>
+<hr>
+<div>
+    <div>
+        <h3>타지역 날씨</h3>
+    </div>
+    <div>
+        시도 : <input type="text" id="sido"/>
+        구군 : <input type="text" id="gugun" />
+    </div>
+    <div>
+        <button id="getWeather">클릭</button>
+    </div>
+</div>
+
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+    var json;
+
+    function getLocation()
+    {
+        var result;
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                result = position;
+                $('#lat').val(result.coords.latitude);
+                $('#lon').val(result.coords.longitude);
+
+                $.ajax({
+                    url: 'http://localhost/RestAPI/api/Weather/GetLocationWeather?x=' + result.coords.latitude + '&y=' + result.coords.longitude,
+                    method: 'POST',
+                    success: function (response) {
+                        var jsonp = JSON.stringify(response);
+                        //var rows = jsonp.Table;
+                        alert(jsonp);
+                    }
+
+                });
+            }, function (error) {
+                console.error(error);
+            },
+                {
+                    enableHighAccuracy: false,
+                    maximumAge: 0,
+                    timeout: Infinity
+                });
+        } else
+        {
+            alert('GPS를 지원하지 않습니다.')
+        }
+    }
+
+    function getWeather()
+    {
+        var sido = $("#sido").val();
+        var gugun = $("#gugun").val();
+        $.ajax({
+            url: 'http://localhost/RestAPI/api/Weather/GetRegionWeather?sido=' + sido + '&gugun=' + gugun,
+            method: 'POST',
+            success: function (response) {
+                var jsonp = JSON.stringify(response);
+                //var rows = jsonp.Table;
+                alert(jsonp);
+            }
+
+        });
+    }
+
+    $(document).ready(function () {
+        
+
+        $('#getLocation').on('click', function () {
+            getLocation();
+        });
+        $('#getWeather').on('click', function () {
+            getWeather();
+        });
+    });
+</script>
